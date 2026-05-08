@@ -9,13 +9,17 @@ using TaskManagerAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Database Context - Using SQLite (Mac compatible)
+// ============================================
+// 1. Database – SQLite (Mac/Linux)
+// ============================================
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Add JWT Authentication
+// ============================================
+// 2. JWT Authentication
+// ============================================
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -32,25 +36,40 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Register Services
+// ============================================
+// 3. CORS – Allow React frontend (localhost:5173)
+// ============================================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// ============================================
+// 4. Register your services (DI)
+// ============================================
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
-// Add Controllers
+// ============================================
+// 5. Controllers & Swagger
+// ============================================
 builder.Services.AddControllers();
-
-// Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "Task Manager API", 
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Task Manager API",
         Version = "v1",
         Description = "A simple task management API built with .NET 8"
     });
-    
-    // Add JWT support in Swagger
+
+    // Enable JWT in Swagger UI
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token",
@@ -59,7 +78,7 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -76,24 +95,39 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// ============================================
+// Build the app
+// ============================================
 var app = builder.Build();
 
-// Add Error Handling Middleware FIRST
+// ============================================
+// Middleware pipeline (order matters!)
+// ============================================
+
+// 1. Global error handling
 app.UseErrorHandling();
 
-// Configure the HTTP request pipeline
+// 2. CORS (must come before auth)
+app.UseCors("AllowReactApp");
+
+// 3. Swagger (only in dev)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+
+// 4. Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
-// Apply migrations and seed data automatically
+// ============================================
+// Ensure database is created
+// ============================================
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
