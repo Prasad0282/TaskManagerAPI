@@ -1,116 +1,175 @@
-# 🚀 Task Manager API
+# 🚀 Task Manager
 
-A RESTful API built with .NET 8 for managing tasks and projects with JWT authentication.
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)](https://sqlite.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 🛠️ Tech Stack
+A full‑stack task management application with a **.NET 8 Web API** backend and a **React + TypeScript** frontend.  
+**Authenticate**, manage **projects**, **tasks**, **categories**, and **tags** with powerful **filtering**, **sorting**, and **pagination** – all in one slick interface.
 
-- **Backend:** .NET 8 Web API
-- **Database:** SQLite with Entity Framework Core
-- **Authentication:** JWT (JSON Web Tokens)
-- **Documentation:** Swagger/OpenAPI
+---
 
 ## 🏗️ Architecture
 
-\`\`\`
-Client → REST API → Controllers → Services → EF Core → SQLite
-↓
-JWT Authentication
-\`\`\`
+```mermaid
+flowchart TB
+    subgraph Frontend["Frontend (React + Vite)"]
+        Login["Login / Register"]
+        Dashboard["Dashboard"]
+        TaskList["Task List\n(with filters, pagination)"]
+        TaskForm["Task Form (Create / Edit)"]
+    end
 
-## 📊 Database Schema
+    subgraph Backend["Backend (.NET 8 Web API)"]
+        AuthController["Auth Controller\n(JWT Authentication)"]
+        ProjectsController["Projects Controller"]
+        TasksController["Tasks Controller"]
+        CategoriesController["Categories Controller"]
+    end
 
-![Database Schema](schema.png)
+    subgraph Database["Database"]
+        SQLite["SQLite\n(Users, Projects, Tasks, Categories)"]
+    end
 
-### Tables:
+    Frontend -- "REST API (JSON)" --> Backend
+    Backend -- "Entity Framework Core" --> Database
 
-- **Users:** User accounts with credentials
-- **Projects:** Project containers for tasks
-- **Tasks:** Individual task items
+    AuthController -- "Validates / Generates JWT" --> SQLite
+    ProjectsController -- "CRUD on Projects" --> SQLite
+    TasksController -- "CRUD on Tasks\n+ Filtering / Pagination" --> SQLite
+    CategoriesController -- "CRUD on Categories" --> SQLite
+✨ Features
+User Authentication – Register & login with JWT tokens, protected routes
 
-## 🚀 Quick Start
+Project Management – Create, list, and delete projects
 
-### Prerequisites
+Task Management – Full CRUD with status flow (Todo → InProgress → Done)
 
-- .NET 8 SDK
-- Any OS (Windows/Mac/Linux)
+Priorities & Tags – Critical / High / Medium / Low priority; comma‑separated tags
 
-### Installation
+Categories – Organize tasks into custom categories
 
-\`\`\`bash
+Advanced Filtering – By status, priority, project, category, or text search
 
-# Clone repository
+Pagination & Sorting – Browse large task lists efficiently
 
-git clone https://github.com/YOUR_USERNAME/TaskManagerAPI.git
+Swagger UI – Explore and test the API directly from the browser
 
-# Navigate to project
+Unit Tests – xUnit tests for core services (TaskService)
 
-cd TaskManagerAPI/TaskManagerAPI
+Responsive Frontend – Tailwind CSS, works on desktop & mobile
 
-# Restore packages
+📁 Project Structure
+text
+TaskManagerAPI/
+├── frontend/                     # React + TypeScript frontend
+│   ├── src/
+│   │   ├── components/           # Layout, ProtectedRoute, Pagination
+│   │   ├── config/               # Axios API client
+│   │   ├── pages/                # Login, Register, Dashboard, TaskList, TaskForm
+│   │   ├── services/             # auth, task, project, category API calls
+│   │   └── types/                # TypeScript interfaces
+│   └── ...
+├── TaskManagerAPI/               # .NET 8 Web API backend
+│   ├── Controllers/              # Auth, Projects, Tasks, Categories
+│   ├── Data/                     # AppDbContext (EF Core)
+│   ├── Middleware/                # Error handling middleware
+│   ├── Models/                   # Entities and DTOs
+│   └── Services/                 # Business logic (AuthService, TaskService)
+├── TaskManagerAPI.Tests/         # xUnit tests
+└── TaskManagerAPI.sln
+🚀 Quick Start
+Prerequisites
+.NET 8 SDK
 
+Node.js (v18+)
+
+npm
+
+1. Clone the repository
+bash
+git clone https://github.com/Prasad0282/TaskManagerAPI.git
+cd TaskManagerAPI
+2. Run the backend
+bash
+cd TaskManagerAPI
 dotnet restore
-
-# Run the application
-
 dotnet run
-\`\`\`
+The API starts at http://localhost:5252.
+Open http://localhost:5252/swagger to see interactive documentation.
 
-### API Endpoints
+3. Run the frontend
+Open a new terminal in the root folder:
 
-Open `http://localhost:5252/swagger` to see all endpoints.
+bash
+cd frontend
+npm install
+npm run dev
+The React app starts at http://localhost:5173.
+It automatically connects to the backend API.
 
-## 🔑 Authentication
+🔑 Usage Guide
+Register a new account (or login with existing credentials)
 
-1. **Register:** `POST /api/auth/register`
-2. **Login:** `POST /api/auth/login`
-3. Use token in header: `Authorization: Bearer <token>`
+Create a project (via Dashboard or Swagger)
 
-## 📝 API Endpoints
+Create categories (optional) to organize tasks
 
-### Auth
+Add tasks with priorities, tags, and due dates
 
-- `POST /api/auth/register` - Create new account
-- `POST /api/auth/login` - Login to account
+Use the task list to filter, sort, and change statuses
 
-### Projects (Requires Auth)
+🧪 Testing
+Run the backend unit tests:
 
-- `POST /api/projects` - Create project
-- `GET /api/projects` - Get all projects
-- `GET /api/projects/{id}` - Get project with tasks
+bash
+cd TaskManagerAPI.Tests
+dotnet test
+These tests cover the TaskService logic using an in‑memory database.
 
-### Tasks (Requires Auth)
+🌐 API Endpoints (Backend)
+Method	Endpoint	Auth	Description
+POST	/api/auth/register	No	Register a new user
+POST	/api/auth/login	No	Login and receive JWT
+GET	/api/projects	Yes	List user projects
+POST	/api/projects	Yes	Create a project
+DELETE	/api/projects/{id}	Yes	Delete a project
+GET	/api/categories	Yes	List user categories
+POST	/api/categories	Yes	Create a category
+DELETE	/api/categories/{id}	Yes	Delete a category
+GET	/api/tasks	Yes	List tasks (with filters)
+GET	/api/tasks/{id}	Yes	Get a single task
+POST	/api/tasks	Yes	Create a task
+PUT	/api/tasks/{id}	Yes	Update a task
+PATCH	/api/tasks/{id}/status	Yes	Update task status only
+DELETE	/api/tasks/{id}	Yes	Delete a task
+Query parameters for GET /api/tasks:
+status, priority, searchTerm, tag, categoryId, projectId, sortBy, sortOrder, pageNumber, pageSize
 
-- `POST /api/tasks` - Create task
-- `GET /api/tasks` - Get all tasks
-- `GET /api/tasks/{id}` - Get specific task
-- `PATCH /api/tasks/{id}/status` - Update task status
-- `DELETE /api/tasks/{id}` - Delete task
+🛠️ Tech Stack
+Layer	Technology
+Frontend	React 18, TypeScript, Vite, Tailwind CSS, Axios
+Backend	.NET 8 Web API, Entity Framework Core, SQLite
+Auth	JWT (JSON Web Tokens)
+Testing	xUnit, Moq, FluentAssertions
+Documentation	Swagger / OpenAPI
+Versioning	Git, GitHub
+📈 What I Learned
+Building a complete REST API from scratch with .NET 8
 
-## 🎯 Features
+Entity Framework Core (SQLite) – migrations, relationships, seed data
 
-- ✅ User registration & login
-- ✅ JWT token authentication
-- ✅ Project management
-- ✅ Task CRUD operations
-- ✅ Task status tracking (Todo, InProgress, Done)
-- ✅ Swagger documentation
-- ✅ SQLite database (no setup required)
+JWT authentication & authorization with middleware
 
-## 📈 What I Learned
+Clean Architecture (Controllers → Services → Data)
 
-- Building RESTful APIs with .NET 8
-- Entity Framework Core ORM
-- JWT authentication implementation
-- Clean Architecture patterns
-- Swagger/OpenAPI documentation
-- Dependency Injection in .NET
-- Database design and relationships
+Frontend development with React, TypeScript, and Tailwind
 
-## 🔜 Next Steps
+State management with React hooks and Axios interceptors
 
-- [ ] Add unit tests
-- [ ] Docker containerization
-- [ ] Deploy to cloud (AWS/Azure)
-- [ ] Add user roles & permissions
-- [ ] Implement pagination
-- [ ] Add request validation
+Advanced filtering, sorting, and pagination patterns
+
+Writing unit tests with xUnit and Moq
