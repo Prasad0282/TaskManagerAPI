@@ -81,6 +81,26 @@ TaskManagerAPI/
 │   └── Services/                 # Business logic (AuthService, TaskService)
 ├── TaskManagerAPI.Tests/         # xUnit tests
 └── TaskManagerAPI.sln
+## 🐳 Docker & CI/CD
+
+- **Containerized** with Docker (multi-stage builds for .NET and React + Nginx)
+- **Docker Compose** for local full-stack development
+- **GitHub Actions** CI/CD pipeline automatically builds and pushes images to GitHub Container Registry on every push to `main`
+- **Azure-ready / AWS-ready** – images can be deployed to any container service
+
+### Run with Docker
+
+\`\`\`bash
+docker compose up --build
+\`\`\`
+
+Frontend: `http://localhost:3000`
+Backend Swagger: `http://localhost:5252/swagger`
+
+### Public Container Images
+
+- Backend: `ghcr.io/Prasad0282/taskmanager-backend:latest`
+- Frontend: `ghcr.io/Prasad0282/taskmanager-frontend:latest`
 🚀 Quick Start
 Prerequisites
 .NET 8 SDK
@@ -173,3 +193,4 @@ State management with React hooks and Axios interceptors
 Advanced filtering, sorting, and pagination patterns
 
 Writing unit tests with xUnit and Moq
+```
