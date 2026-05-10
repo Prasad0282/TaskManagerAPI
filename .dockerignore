@@ -1,0 +1,13 @@
+echo "bin/
+obj/
+.git/
+.gitignore
+.vs/
+.vscode/
+*.db
+*.db-shm
+*.db-wal
+global.json
+README.md
+appsettings.Development.json
+" > TaskManagerAPI/.dockerignore
